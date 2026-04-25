@@ -9,7 +9,13 @@
       "extensions": [
         "ms-python.python",
         "ms-toolsai.jupyter"
-      ]
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "[python]": {
+          "defaultInterpreterPath": "/usr/local/bin/python"
+        }
+      }
     }
   },
   "postStartCommand": "ollama serve &",
