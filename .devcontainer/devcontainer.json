@@ -21,8 +21,8 @@
       }
     }
   },
-  "postStartCommand": "ollama serve &",
-  "forwardPorts": [11434, 8888],
+"postStartCommand": "ollama serve & sleep 3 && ollama run qwen3:8b \"warmup\" --keepalive 1h",
+"forwardPorts": [11434, 8888],
   "portsAttributes": {
     "11434": {
       "label": "Ollama",
