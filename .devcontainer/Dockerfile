@@ -4,11 +4,17 @@ FROM mcr.microsoft.com/devcontainers/python:3.12
 RUN apt-get update && apt-get install -y zstd && rm -rf /var/lib/apt/lists/*
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
-# Pull the model during build so it's baked into the image
+# Pull the model during build so it's baked into the image.
+# Run as vscode so blobs land in /home/vscode/.ollama, where ollama serve
+# will look at runtime in the devcontainer/Codespace.
+USER vscode
 RUN ollama serve & \
+    SERVE_PID=$! && \
     sleep 5 && \
-    ollama pull qwen3:8b; \
-    pkill ollama; exit 0
+    ollama pull qwen3:8b && \
+    kill $SERVE_PID && \
+    wait $SERVE_PID 2>/dev/null || true
+USER root
 
 # Install Python dependencies
 COPY requirements.txt /tmp/requirements.txt

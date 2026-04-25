@@ -4,6 +4,7 @@
     "dockerfile": "Dockerfile",
     "context": "."
   },
+  // "image": "ai-podcast-workshop",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -14,16 +15,22 @@
         "python.defaultInterpreterPath": "/usr/local/bin/python",
         "[python]": {
           "defaultInterpreterPath": "/usr/local/bin/python"
-        }
+        },
+        "python-envs.defaultEnvManager": "ms-python.python:venv",
+        "python-envs.defaultPackageManager": "ms-python.python:pip"
       }
     }
   },
   "postStartCommand": "ollama serve &",
-  "forwardPorts": [11434],
+  "forwardPorts": [11434, 8888],
   "portsAttributes": {
     "11434": {
       "label": "Ollama",
       "onAutoForward": "silent"
+    },
+    "8888": {
+      "label": "Jupyter",
+      "onAutoForward": "notify"
     }
   }
 }
