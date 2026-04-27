@@ -1,7 +1,5 @@
 # 🎙️ The AI Podcast Studio Workshop
 
-> 🌏 [中文版 (Chinese Version)](translation/zh-cn/README.md)
-
 ![logo](./imgs/logo.png)
 
 ## Your Mission

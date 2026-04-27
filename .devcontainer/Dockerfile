@@ -11,11 +11,15 @@ USER vscode
 RUN ollama serve & \
     SERVE_PID=$! && \
     sleep 5 && \
-    ollama pull qwen3:8b && \
+    ollama pull gemma4:e4b && \
     kill $SERVE_PID && \
     wait $SERVE_PID 2>/dev/null || true
 USER root
 
+# Install Node.js
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y nodejs && rm -rf /var/lib/apt/lists/*
+
 # Install Python dependencies
-COPY requirements.txt /tmp/requirements.txt
+COPY AgentCampWorkshop/code/Installations/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt -U

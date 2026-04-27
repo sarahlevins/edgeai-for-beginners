@@ -5,27 +5,27 @@ This agent uses Ollama with web search capabilities.
 """
 
 import os
-import asyncio
+import json
+import requests
+
 from typing import Annotated
-from datetime import datetime, timezone
-from random import randint
+from pathlib import Path
 from dotenv import load_dotenv
 
 from agent_framework.ollama import OllamaChatClient
 from pydantic import Field
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parent.parent.parent / ".env")
 
 def web_search(
     query: Annotated[str, Field(description="Search query")],
 ) -> str:
     """Perform web search using Ollama API."""
-    import requests
-    
+
     api_key = os.getenv("OLLAMA_API_KEY")
     if not api_key:
         return "Error: OLLAMA_API_KEY environment variable not set"
-    
+
     url = "https://ollama.com/api/web_search"
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -34,12 +34,19 @@ def web_search(
     data = {
         "query": query
     }
-    
+
     try:
         response = requests.post(url, headers=headers, json=data)
         response.raise_for_status()
-        print(response.text)
-        return response.text
+        raw = json.loads(response.text)
+        # Take top 3 results with just title and content snippet
+        top_results = [
+            {"title": r.get("title", ""), "content": r.get("content", "")[:4000]}
+            for r in raw.get("results", [])[:3]
+        ]
+        result = json.dumps(top_results, indent=2)
+        print(result.length)
+        return result
     except requests.exceptions.RequestException as e:
         return f"Error fetching web content: {str(e)}"
 
@@ -47,12 +54,12 @@ def web_search(
 def setup_agent():
     """Setup the Ollama-based web search agent."""
     # Create Ollama chat client
-    client = OllamaChatClient(model_id=os.getenv("OLLAMA_CHAT_MODEL_ID"))
+    client = OllamaChatClient(model=os.getenv("OLLAMA_CHAT_MODEL_ID"))
     
     # Agent instance following Agent Framework conventions
     agent = client.as_agent(
         name="SearchAgent",
-        instructions="You are my assistant. Answer the questions based on the search engine.",
+        instructions="You are a search assistant. When the user asks a question, use the web_search tool to find the answer, then respond with a direct, concise answer to their question. Always answer the user's original question after receiving search results.",
         tools=[web_search],
     )
     

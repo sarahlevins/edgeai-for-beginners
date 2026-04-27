@@ -5,16 +5,13 @@ This agent uses Ollama with web search capabilities.
 """
 
 import os
-import asyncio
 from typing import Annotated
-from datetime import datetime, timezone
-from random import randint
 from dotenv import load_dotenv
 
 from agent_framework.ollama import OllamaChatClient
 from pydantic import Field
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parent.parent.parent / ".env")
 
 def web_search(
     query: Annotated[str, Field(description="Search query")],
@@ -38,8 +35,9 @@ def web_search(
     try:
         response = requests.post(url, headers=headers, json=data)
         response.raise_for_status()
-        print(response.text)
-        return response.text
+        # Truncate to avoid flooding the model's context
+        result = response.text[:8000]
+        return result
     except requests.exceptions.RequestException as e:
         return f"Error fetching web content: {str(e)}"
 
